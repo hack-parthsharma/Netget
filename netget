@@ -1,0 +1,89 @@
+#!/bin/bash
+# License : GPL v3.0
+# Created by Saman Ebrahimnezhad .
+
+function main {
+
+	if [ -z "$1" ] # $1 isn't available
+	then
+		clear
+
+		menu
+
+		read input # prompt
+
+		if [ $input -eq 1 ]
+		then
+			# SERVER
+			server
+		elif [ $input -eq 2 ]
+		then
+			# CLIENT
+			client
+		else
+			# resets the script
+			echo "###ERROR###"
+			sleep 1
+			main
+		fi
+	elif [ ! -z "$2" ] # $1 and $2 are available
+	then
+		if [ "$1" == "server" ] # share the file ($2)
+		then
+			server $2
+		elif [ "$1" == "client" ] # receive the file
+		then
+			if [ ! -z "$3" ] # $3 is available.
+			then
+				client $2 $3 # receive the file from the server ($2) and save it as ($3)
+			else
+				usage
+			fi
+		else
+			usage
+		fi
+	else
+		usage
+	fi
+
+}
+
+function menu {
+	# prints the menu.
+	echo "Welcome to netget"
+	echo "What can I do for you?"
+	echo -e "	-[\033[1;34m1\033[0m] Share a file."
+	echo -e "	-[\033[1;34m2\033[0m] Receive a file."
+	echo -ne "\033[1;34m>\033[0m "
+}
+
+function server() {
+	if [ ! -z "$1" ]
+	then
+		/usr/share/netget/server.py $1 # server.py script
+	else
+		echo -n "Enter the full path of your file> "
+		read fileName
+		/usr/share/netget/server.py $fileName
+	fi
+}
+
+function client()  {
+	if [ ! -z "$1" ]
+	then
+		/usr/share/netget/client.py $1 $2 # client.py script
+	else
+		echo -n "Enter the server ip> "
+		read serverIp
+		echo -n "Enter a name for downloaded file> "
+		read fileName
+		/usr/share/netget/client.py $serverIp $fileName
+	fi
+}
+
+function usage {
+	# prints the usage.
+	echo "Usage: netget {server | client} [IP_ADDRESS(for client)] FILENAME"
+}
+
+main $1 $2 $3 # run the script with given args
